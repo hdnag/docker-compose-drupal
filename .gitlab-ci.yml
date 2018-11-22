@@ -21,7 +21,7 @@ variables:
 # Only variables need to be changed if needed.
 ################################################################################
 
-build:
+.build:
   stage: build
   script:
     - apk --no-cache add make gettext
@@ -42,7 +42,7 @@ test php 7.1:
     - docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction
     - scripts/drush status
 
-test php 7.2:
+.test php 7.2:
   stage: test
   script:
     - apk --no-cache add make gettext bash python3
@@ -56,7 +56,7 @@ test php 7.2:
     - docker-compose up -d --build
     - docker exec dcd-php php -v
 
-release:
+.release:
   stage: release
   script:
     - echo "ok"
