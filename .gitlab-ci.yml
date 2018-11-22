@@ -35,7 +35,7 @@ test:
     - pip3 install --upgrade pip setuptools
     - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi
     - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
-    - pip install 'docker-compose==${DOCKER_COMPOSE}'
+    - pip install 'docker-compose==1.23.1'
     - make up
 
 release:
