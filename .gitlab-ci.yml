@@ -34,6 +34,8 @@ test:
     - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
     - pip install 'docker-compose'
     - make up
+    - scripts/install-drupal.sh install drupal-min
+    - scripts/drush status
 
 release:
   stage: release
