@@ -30,16 +30,17 @@ variables:
 test php 7.1:
   stage: test
   script:
-    - apk --no-cache add make gettext bash python3
+    - apk --no-cache add make gettext bash python3 util-linux
     - python3 -m ensurepip
     - pip3 install --upgrade pip setuptools
     - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi
     - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
     - pip install 'docker-compose'
     - make setup
+    - whereis docker-compose
     - docker-compose up -d --build
     - docker exec dcd-php php -v
-    - if [! -f data/www/drupal/web/index.php ];
+    - if [ ! -f 'data/www/drupal/web/index.php' ];
       then
         docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction;
       fi
