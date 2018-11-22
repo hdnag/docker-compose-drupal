@@ -87,11 +87,13 @@ variables:
         mkdir -p data/www/drupal/config/sync;
       fi
     - chmod -R 777 data/www/drupal/config/sync
-    - scripts/drush si minimal -y
+    - scripts/drush -y si minimal --db-url=${DB_TYPE}://drupal:drupal@${DB_TYPE}/drupal
     - scripts/drush status
     - scripts/drush status >> report.txt
     - scripts/drupal site:status >> report.txt
     - scripts/composer show -P >> report.txt
+  variables:
+    DB_TYPE: "mysql"
   artifacts:
     paths:
       - report.txt
@@ -136,29 +138,31 @@ dcd:
       - .env
       - docker-compose.yml
 
-test Drupal Php7.1:
+drupal Php7.1:
   before_script:
     - *install_docker_compose
     - make setup
   <<: *test_install_dcd
 
-test Drupal Php7.2:
+drupal Php7.2:
   before_script:
     - *install_docker_compose
     - make setup
     - sed -i 's#7.1#7.2#g' .env
   <<: *test_install_dcd
 
-test sample AMP:
+sample AMP7.1:
   before_script:
     - *install_docker_compose
     - make setup
     - cp samples/apache_mysql_php_memcache_solr.yml docker-compose.yml
   <<: *test_install_dcd
 
-test sample AP9P:
+sample AP9P7.1:
   before_script:
     - *install_docker_compose
     - make setup
     - cp samples/apache_postgres9_php.yml docker-compose.yml
   <<: *test_install_dcd
+  variables:
+    DB_TYPE: "pgsql"
