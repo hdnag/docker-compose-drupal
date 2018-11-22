@@ -10,11 +10,57 @@ stages:
 
 variables:
   CONTAINER_WEB_ROOT: "/var/www/localhost/drupal"
+  SOLR_CORE: "d8"
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_DRIVER: overlay2
+  TEST_IMAGE: registry.gitlab.com/mog33/docker-images
+  RELEASE_REGISTRY: docker.io
+  RELEASE_IMAGE: index.docker.io/$RELEASE_USER
 
 ################################################################################
 # Templates to avoid repeat.
 # https://docs.gitlab.com/ee/ci/yaml/#anchors
 ################################################################################
+
+.docker_login_gitlab:
+  - &docker_login_gitlab docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+
+.docker_build_push:
+  script: &docker_build_push
+    - docker build --pull --tag $TEST_IMAGE/$IMAGE $DIR
+    - docker push $TEST_IMAGE/$IMAGE
+
+.docker_pull:
+  - &docker_pull docker pull $TEST_IMAGE/$IMAGE
+
+.build_image: &build_image
+  stage: build
+  before_script:
+    - *docker_login_gitlab
+  script: *docker_build_push
+
+.test_image: &test_image
+  stage: test
+  before_script:
+    - *docker_login_gitlab
+    - *docker_pull
+    - docker run -d -t --name test $TEST_IMAGE/$IMAGE
+
+.test_solr: &test_solr
+  <<: * test_image
+  script:
+    - docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping"
+
+.release: &release
+  stage: release
+  before_script:
+    - docker login -u $RELEASE_USER -p $RELEASE_PASSWORD $RELEASE_REGISTRY
+  script:
+    - *docker_pull
+    - docker tag $TEST_IMAGE/$IMAGE $RELEASE_IMAGE/$IMAGE
+    - docker push $RELEASE_IMAGE/$IMAGE
+  only:
+    - master
 
 .install_docker_compose: &install_docker_compose
   before_script:
@@ -29,6 +75,40 @@ variables:
 # Jobs based on previous templates.
 ################################################################################
 
+solr:5:
+  <<: *build_image
+  variables:
+    IMAGE: solr:5
+    DIR: build/solr-5
+
+test:solr:5:
+  <<: *test_solr
+  variables:
+    IMAGE: solr:5
+
+release:solr:5:
+  <<: *release
+  variables:
+    IMAGE: solr:5
+
+dashboard:
+  <<: *build_image
+  variables:
+    IMAGE: dashboard:latest
+    DIR: build/dashboard
+
+test:dashboard:
+  <<: *test_image
+  script:
+    - docker exec test wget -q --server-response "http://localhost:5000/blocks"
+  variables:
+    IMAGE: dashboard:latest
+
+release:dashboard:
+  <<: *release
+  variables:
+    IMAGE: dashboard:latest
+
 .build:
   stage: build
   <<: *install_docker_compose
@@ -40,7 +120,7 @@ variables:
       - .env
       - docker-compose.yml
 
-test php 7.1:
+.test php 7.1:
   stage: test
   <<: *install_docker_compose
   script:
@@ -74,7 +154,7 @@ test php 7.1:
       - data/www/drupal
       - data/database
 
-test php 7.2:
+.test php 7.2:
   stage: test
   <<: *install_docker_compose
   script:
