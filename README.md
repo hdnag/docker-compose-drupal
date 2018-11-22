@@ -1,9 +1,11 @@
 # Drupal 8 Docker Compose Development
 
+[![pipeline status](https://gitlab.com/mog33/docker-compose-drupal/badges/master/pipeline.svg)](https://gitlab.com/mog33/docker-compose-drupal/commits/master)
+
 ## Require
 
 * [Docker engine 18+](https://docs.docker.com/install)
-* [Docker compose 1.22+](https://docs.docker.com/compose/install)
+* [Docker compose 1.23+](https://docs.docker.com/compose/install)
 
 **Full** Linux support. Tested daily on Ubuntu 16/18.
 

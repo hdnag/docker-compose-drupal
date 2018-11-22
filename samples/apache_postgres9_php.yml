@@ -93,7 +93,7 @@ services:
     restart: unless-stopped
     container_name: ${PROJECT_NAME:-dcd}-tools
   dashboard:
-    image: mogtofu33//dashboard:latest
+    image: mogtofu33/dashboard:latest
     ports:
       - "${HOST_DASHBORAD_PORT:-8181}:5000"
     volumes:
