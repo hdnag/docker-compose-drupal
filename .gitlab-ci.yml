@@ -8,6 +8,9 @@ stages:
   - test
   - release
 
+variables:
+  CONTAINER_WEB_ROOT: "/var/www/localhost/drupal"
+
 ################################################################################
 # Templates to avoid repeat.
 # https://docs.gitlab.com/ee/ci/yaml/#anchors
@@ -22,7 +25,7 @@ build:
   stage: build
   script:
     - apk --no-cache add make gettext
-    - make build
+    - make setup
 
 test php 7.1:
   stage: test
@@ -33,8 +36,11 @@ test php 7.1:
     - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi
     - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
     - pip install 'docker-compose'
-    - make up
+    - make setup
+    - docker-compose up -d --build
     - docker exec dcd-php php -v
+    - docker exec composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction
+    - scripts/drush status
 
 test php 7.2:
   stage: test
@@ -45,7 +51,6 @@ test php 7.2:
     - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi
     - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
     - pip install 'docker-compose'
-    - make build
     - make setup
     - sed -i 's#7.1#7.2#g' .env
     - docker-compose up -d --build
