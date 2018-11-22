@@ -26,6 +26,8 @@ build:
 
 test:
   stage: test
+  dependencies:
+    - build
   script:
     - apk --no-cache add make gettext bash python3
     - python3 -m ensurepip
@@ -34,8 +36,12 @@ test:
     - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
     - pip install 'docker-compose'
     - make up
-    - scripts/install-drupal.sh install drupal-min
-    - scripts/drush status
+    - mkdir -p data/www/drupal
+    - ls -lAh
+    - ls -lAh data
+    - id
+    #- scripts/install-drupal.sh install drupal-min
+    #- scripts/drush status
   cache:
     paths:
       - /usr/bin/docker-compose
