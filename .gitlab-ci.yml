@@ -39,7 +39,7 @@ test php 7.1:
     - make setup
     - docker-compose up -d --build
     - docker exec dcd-php php -v
-    - docker exec composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction
+    - docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction
     - scripts/drush status
 
 test php 7.2:
