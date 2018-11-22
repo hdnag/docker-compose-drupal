@@ -13,7 +13,6 @@ stages:
 
 variables:
   CONTAINER_WEB_ROOT: "/var/www/localhost/drupal"
-  SOLR_CORE: "d8"
   DOCKER_HOST: tcp://docker:2375
   DOCKER_DRIVER: overlay2
   TEST_IMAGE: registry.gitlab.com/mog33/docker-compose-drupal
@@ -49,13 +48,6 @@ variables:
     - *docker_pull
     - docker run -d -t --name test $TEST_IMAGE/$IMAGE
 
-.test_solr: &test_solr
-  <<: *test_image
-  script:
-    - docker exec --user=solr test ls -lAh /opt/solr/server/solr/mycores/
-    - docker exec --user=solr test ls -lAh /opt/solr/server/solr/mycores/d8
-    #- docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping?wt=json"
-
 .release: &release
   stage: release images
   before_script:
@@ -83,7 +75,7 @@ variables:
     - docker-compose config > report.txt
     - docker-compose build > /dev/null
     - docker-compose up -d
-    - docker exec dcd-php wget -q --server-response http://tools/phpinfo.php?format=json
+    #- docker exec dcd-php wget -q --server-response http://tools/phpinfo.php?format=json
     - docker exec dcd-php php -v
     - docker exec dcd-php php -v >> report.txt
     - if [ ! -f 'data/www/drupal/web/index.php' ];
@@ -113,54 +105,6 @@ variables:
 ################################################################################
 # Jobs based on previous templates.
 ################################################################################
-
-solr:5:
-  <<: *build_image
-  variables:
-    IMAGE: solr:5
-    DIR: build/solr-5
-
-test:solr:5:
-  <<: *test_solr
-  variables:
-    IMAGE: solr:5
-
-release:solr:5:
-  <<: *release
-  variables:
-    IMAGE: solr:5
-
-solr:6:
-  <<: *build_image
-  variables:
-    IMAGE: solr:6
-    DIR: build/solr-6
-
-test:solr:6:
-  <<: *test_solr
-  variables:
-    IMAGE: solr:6
-
-release:solr:6:
-  <<: *release
-  variables:
-    IMAGE: solr:6
-
-solr:7:
-  <<: *build_image
-  variables:
-    IMAGE: solr:7
-    DIR: build/solr-7
-
-test:solr:7:
-  <<: *test_solr
-  variables:
-    IMAGE: solr:7
-
-release:solr:7:
-  <<: *release
-  variables:
-    IMAGE: solr:7
 
 dashboard:
   <<: *build_image
