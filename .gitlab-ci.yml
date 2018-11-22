@@ -8,6 +8,9 @@ stages:
   - test
   - release
 
+variables:
+  DOCKER_COMPOSE: '1.23.1'
+
 ################################################################################
 # Templates to avoid repeat.
 # https://docs.gitlab.com/ee/ci/yaml/#anchors
@@ -21,12 +24,19 @@ stages:
 build:
   stage: build
   script:
-    - apk --no-cache add make gettext && make build
+    - apk --no-cache add make gettext
+    - make build
 
 test:
   stage: test
   script:
-    - apk --no-cache add make gettext && make up
+    - apk --no-cache add make gettext python3
+    - python3 -m ensurepip
+    - pip3 install --upgrade pip setuptools
+    - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi
+    - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
+    - pip install 'docker-compose==${DOCKER_COMPOSE}'
+    - make up
 
 release:
   stage: release
