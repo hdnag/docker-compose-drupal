@@ -47,7 +47,7 @@ variables:
     - docker run -d -t --name test $TEST_IMAGE/$IMAGE
 
 .test_solr: &test_solr
-  <<: * test_image
+  <<: *test_image
   script:
     - docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping"
 
