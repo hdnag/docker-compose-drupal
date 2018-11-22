@@ -49,7 +49,7 @@ variables:
 .test_solr: &test_solr
   <<: *test_image
   script:
-    - docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping"
+    - docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping?wt=json"
 
 .release: &release
   stage: release
@@ -59,17 +59,49 @@ variables:
     - *docker_pull
     - docker tag $TEST_IMAGE/$IMAGE $RELEASE_IMAGE/$IMAGE
     - docker push $RELEASE_IMAGE/$IMAGE
-  only:
-    - master
+  #only:
+    #- master
 
-.install_docker_compose: &install_docker_compose
-  before_script:
-    - apk --no-cache add make gettext bash python3 > /dev/null
-    - python3 -m ensurepip > /dev/null
-    - pip3 install --upgrade pip setuptools > /dev/null
-    - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi > /dev/null
-    - if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi > /dev/null
-    - pip install 'docker-compose' > /dev/null
+.install_docker_compose:
+    - &install_docker_compose
+      apk --no-cache add make gettext bash python3 &&
+      python3 -m ensurepip &&
+      pip3 install --upgrade pip setuptools &&
+      if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi &&
+      if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi &&
+      pip install 'docker-compose' > /dev/null
+
+.test_install_dcd: &test_install_dcd
+  stage: test
+  script:
+    - touch report.txt
+    - docker-compose config > report.txt
+    - docker-compose build > /dev/null
+    - docker-compose up -d
+    - docker exec dcd-php php -v
+    - if [ ! -f 'data/www/drupal/web/index.php' ];
+      then
+        docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction --quiet;
+      fi
+    - if [ ! -d 'data/www/drupal/config/sync' ];
+      then
+        mkdir -p data/www/drupal/config/sync;
+      fi
+    - chmod -R 777 data/www/drupal/config/sync
+    - scripts/drush si minimal -y
+    - scripts/drush status
+    - scripts/drush status >> report.txt
+    - scripts/drupal site:status >> report.txt
+    - scripts/composer show -P >> report.txt
+  artifacts:
+    paths:
+      - report.txt
+    expire_in: 1 hour
+  cache:
+    key: drupal
+    paths:
+      - data/www/drupal
+      - data/database
 
 ################################################################################
 # Jobs based on previous templates.
@@ -91,13 +123,45 @@ release:solr:5:
   variables:
     IMAGE: solr:5
 
+solr:6:
+  <<: *build_image
+  variables:
+    IMAGE: solr:6
+    DIR: build/solr-6
+
+test:solr:6:
+  <<: *test_solr
+  variables:
+    IMAGE: solr:6
+
+release:solr:6:
+  <<: *release
+  variables:
+    IMAGE: solr:6
+
+solr:7:
+  <<: *build_image
+  variables:
+    IMAGE: solr:7
+    DIR: build/solr-7
+
+test:solr:7:
+  <<: *test_solr
+  variables:
+    IMAGE: solr:7
+
+release:solr:7:
+  <<: *release
+  variables:
+    IMAGE: solr:7
+
 dashboard:
   <<: *build_image
   variables:
     IMAGE: dashboard:latest
     DIR: build/dashboard
 
-test:dashboard:
+.test:dashboard:
   <<: *test_image
   script:
     - docker exec test wget -q --server-response "http://localhost:5000/blocks"
@@ -109,9 +173,10 @@ release:dashboard:
   variables:
     IMAGE: dashboard:latest
 
-.build:
+build dcd:
   stage: build
-  <<: *install_docker_compose
+  before_script:
+    - *install_docker_compose
   script:
     - make setup
   cache:
@@ -120,78 +185,15 @@ release:dashboard:
       - .env
       - docker-compose.yml
 
-.test php 7.1:
-  stage: test
-  <<: *install_docker_compose
-  script:
+test php 7.1:
+  before_script:
     - make setup
-    - touch report.txt
-    - docker-compose config > report.txt
-    - docker-compose build > /dev/null
-    - docker-compose up -d
-    - docker exec dcd-php php -v
-    - if [ ! -f 'data/www/drupal/web/index.php' ];
-      then
-        docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction --quiet;
-      fi
-    - if [ ! -d 'data/www/drupal/config/sync' ];
-      then
-        mkdir -p data/www/drupal/config/sync;
-      fi
-    - chmod -R 777 data/www/drupal/config/sync
-    - scripts/drush si minimal -y
-    - scripts/drush status
-    - scripts/drush status >> report.txt
-    - scripts/drupal site:status >> report.txt
-    - scripts/composer show -P >> report.txt
-  artifacts:
-    paths:
-      - report.txt
-    expire_in: 1 hour
-  cache:
-    key: drupal
-    paths:
-      - data/www/drupal
-      - data/database
+    - *install_docker_compose
+  <<: *test_install_dcd
 
-.test php 7.2:
-  stage: test
-  <<: *install_docker_compose
-  script:
+test php 7.2:
+  before_script:
     - make setup
-    - touch report.txt
-    - docker-compose config > report.txt
-    - docker-compose build > /dev/null
     - sed -i 's#7.1#7.2#g' .env
-    - docker-compose up -d
-    - docker exec dcd-php php -v
-    - if [ ! -f 'data/www/drupal/web/index.php' ];
-      then
-        docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction --quiet;
-      fi
-    - if [ ! -d 'data/www/drupal/config/sync' ];
-      then
-        mkdir -p data/www/drupal/config/sync;
-      fi
-    - chmod -R 777 data/www/drupal/config/sync
-    - scripts/drush si minimal -y
-    - scripts/drush status
-    - scripts/drush status >> report.txt
-    - scripts/drupal site:status >> report.txt
-    - scripts/composer show -P >> report.txt
-  artifacts:
-    paths:
-      - report.txt
-    expire_in: 1 hour
-  cache:
-    key: drupal
-    paths:
-      - data/www/drupal
-      - data/database
-
-.release:
-  stage: release
-  script:
-    - echo "ok"
-  only:
-    - master
+    - *install_docker_compose
+  <<: *test_install_dcd
