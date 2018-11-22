@@ -36,10 +36,9 @@ test:
     - make up
     - scripts/install-drupal.sh install drupal-min
     - scripts/drush status
-    - curl -s -I 127.0.0.1:8181
   cache:
     paths:
-      - data
+      - /usr/bin/docker-compose
 
 release:
   stage: release

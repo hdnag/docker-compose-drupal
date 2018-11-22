@@ -108,7 +108,7 @@ tty=
 tty -s && tty=--tty
 
 _DOCKER=$(which docker)
-_COLUMN=$(tput cols)
+_COLUMN=80
 
 ###############################################################################
 # Common Program Functions
