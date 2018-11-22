@@ -15,7 +15,7 @@ variables:
   CONTAINER_WEB_ROOT: "/var/www/localhost/drupal"
   DOCKER_HOST: tcp://docker:2375
   DOCKER_DRIVER: overlay2
-  TEST_IMAGE: registry.gitlab.com/mog33/docker-compose-drupal
+  LOCAL_IMAGE: registry.gitlab.com/mog33/docker-compose-drupal
   RELEASE_REGISTRY: docker.io
   RELEASE_IMAGE: index.docker.io/$RELEASE_USER
 
@@ -29,11 +29,11 @@ variables:
 
 .docker_build_push:
   script: &docker_build_push
-    - docker build --pull --tag $TEST_IMAGE/$IMAGE $DIR
-    - docker push $TEST_IMAGE/$IMAGE
+    - docker build --pull --tag $LOCAL_IMAGE/$IMAGE $DIR
+    - docker push $LOCAL_IMAGE/$IMAGE
 
 .docker_pull:
-  - &docker_pull docker pull $TEST_IMAGE/$IMAGE
+  - &docker_pull docker pull $LOCAL_IMAGE/$IMAGE
 
 .build_image: &build_image
   stage: build images
@@ -46,7 +46,7 @@ variables:
   before_script:
     - *docker_login_gitlab
     - *docker_pull
-    - docker run -d -t --name test $TEST_IMAGE/$IMAGE
+    - docker run -d -t --name test $LOCAL_IMAGE/$IMAGE
 
 .release: &release
   stage: release images
@@ -54,19 +54,19 @@ variables:
     - docker login -u $RELEASE_USER -p $RELEASE_PASSWORD $RELEASE_REGISTRY
   script:
     - *docker_pull
-    - docker tag $TEST_IMAGE/$IMAGE $RELEASE_IMAGE/$IMAGE
+    - docker tag $LOCAL_IMAGE/$IMAGE $RELEASE_IMAGE/$IMAGE
     - docker push $RELEASE_IMAGE/$IMAGE
   #only:
     #- master
 
 .install_docker_compose:
     - &install_docker_compose
-      apk --no-cache add make gettext bash python3 &&
-      python3 -m ensurepip &&
-      pip3 install --upgrade pip setuptools &&
+      apk --no-cache add make gettext bash python3 > /dev/null &&
+      python3 -m ensurepip > /dev/null &&
+      pip3 install --upgrade pip setuptools > /dev/null &&
       if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi &&
       if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi &&
-      pip install 'docker-compose' &> /dev/null
+      pip install 'docker-compose' > /dev/null
 
 .test_install_dcd: &test_install_dcd
   stage: test
@@ -136,27 +136,27 @@ dcd:
       - .env
       - docker-compose.yml
 
-test php 7.1:
+test Drupal Php7.1:
   before_script:
     - *install_docker_compose
     - make setup
   <<: *test_install_dcd
 
-test php 7.2:
+test Drupal Php7.2:
   before_script:
     - *install_docker_compose
     - make setup
     - sed -i 's#7.1#7.2#g' .env
   <<: *test_install_dcd
 
-test sample amp:
+test sample AMP:
   before_script:
     - *install_docker_compose
     - make setup
     - cp samples/apache_mysql_php_memcache_solr.yml docker-compose.yml
   <<: *test_install_dcd
 
-test sample ap9p:
+test sample AP9P:
   before_script:
     - *install_docker_compose
     - make setup
