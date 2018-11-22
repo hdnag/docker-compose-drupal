@@ -52,9 +52,13 @@ test php 7.1:
         mkdir -p data/www/drupal/config/sync;
       fi
     - chmod -R 777 data/www/drupal/config/sync
-    - scripts/drush status
     - scripts/drush si minimal -y
     - scripts/drush status
+    - scripts/drush status &> report.txt
+    - scripts/drupal site:status &>> report.txt
+    - scripts/composer show -P &>> report.txt
+  artifacts:
+    - report.txt
   cache:
     key: drupal
     paths:
