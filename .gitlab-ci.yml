@@ -76,7 +76,7 @@ test php 7.1:
 
 test php 7.2:
   stage: test
-  script:
+  <<: *install_docker_compose
   script:
     - make setup
     - touch report.txt
