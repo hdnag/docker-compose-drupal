@@ -58,7 +58,9 @@ test php 7.1:
     - scripts/drupal site:status &>> report.txt
     - scripts/composer show -P &>> report.txt
   artifacts:
-    - report.txt
+    paths:
+      - report.txt
+    expire_in: 1 hour
   cache:
     key: drupal
     paths:
