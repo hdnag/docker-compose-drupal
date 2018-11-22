@@ -4,6 +4,9 @@ services:
   - docker:dind
 
 stages:
+  - build images
+  - test images
+  - release images
   - build
   - test
   - release
@@ -34,13 +37,13 @@ variables:
   - &docker_pull docker pull $TEST_IMAGE/$IMAGE
 
 .build_image: &build_image
-  stage: build
+  stage: build images
   before_script:
     - *docker_login_gitlab
   script: *docker_build_push
 
 .test_image: &test_image
-  stage: test
+  stage: test images
   before_script:
     - *docker_login_gitlab
     - *docker_pull
@@ -49,10 +52,10 @@ variables:
 .test_solr: &test_solr
   <<: *test_image
   script:
-    - docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping?wt=json"
+    - docker exec --user=solr test wget -q -O - "http://localhost:8983/solr/${SOLR_CORE}/admin/ping?wt=json&indent=false"
 
 .release: &release
-  stage: release
+  stage: release images
   before_script:
     - docker login -u $RELEASE_USER -p $RELEASE_PASSWORD $RELEASE_REGISTRY
   script:
@@ -173,7 +176,7 @@ release:dashboard:
   variables:
     IMAGE: dashboard:latest
 
-build dcd:
+dcd:
   stage: build
   before_script:
     - *install_docker_compose
@@ -187,13 +190,13 @@ build dcd:
 
 test php 7.1:
   before_script:
-    - make setup
     - *install_docker_compose
+    - make setup
   <<: *test_install_dcd
 
 test php 7.2:
   before_script:
+    - *install_docker_compose
     - make setup
     - sed -i 's#7.1#7.2#g' .env
-    - *install_docker_compose
   <<: *test_install_dcd
