@@ -13,7 +13,7 @@ variables:
   SOLR_CORE: "d8"
   DOCKER_HOST: tcp://docker:2375
   DOCKER_DRIVER: overlay2
-  TEST_IMAGE: registry.gitlab.com/mog33/docker-images
+  TEST_IMAGE: registry.gitlab.com/mog33/docker-compose-drupal
   RELEASE_REGISTRY: docker.io
   RELEASE_IMAGE: index.docker.io/$RELEASE_USER
 
