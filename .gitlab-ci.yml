@@ -27,7 +27,7 @@ build:
 test:
   stage: test
   script:
-    - apk --no-cache add make gettext python3
+    - apk --no-cache add make gettext bash python3
     - python3 -m ensurepip
     - pip3 install --upgrade pip setuptools
     - if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip; fi
@@ -36,6 +36,10 @@ test:
     - make up
     - scripts/install-drupal.sh install drupal-min
     - scripts/drush status
+    - curl -s -I 127.0.0.1:8181
+  cache:
+    paths:
+      - data
 
 release:
   stage: release
