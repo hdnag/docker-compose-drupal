@@ -56,8 +56,8 @@ variables:
     - *docker_pull
     - docker tag $LOCAL_IMAGE/$IMAGE $RELEASE_IMAGE/$IMAGE
     - docker push $RELEASE_IMAGE/$IMAGE
-  #only:
-    #- master
+  only:
+    - master
 
 .install_docker_compose:
     - &install_docker_compose
@@ -75,7 +75,6 @@ variables:
     - docker-compose config > report.txt
     - docker-compose build &> /dev/null
     - docker-compose up -d
-    #- docker exec dcd-php wget -q --server-response http://tools/phpinfo.php?format=json
     - docker exec dcd-php php -v
     - docker exec dcd-php php -v >> report.txt
     - if [ ! -f 'data/www/drupal/web/index.php' ];
@@ -168,7 +167,6 @@ sample AP9P7.1:
       then
         rm -rf data/database/pgsql;
       fi
-    - 
   <<: *test_install_dcd
   variables:
     DB_TYPE: "pgsql"
