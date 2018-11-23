@@ -163,6 +163,12 @@ sample AP9P7.1:
     - *install_docker_compose
     - make setup
     - cp samples/apache_postgres9_php.yml docker-compose.yml
+    # When changing database version, ensure we start fresh.
+    - if [ -d "data/database/pgsql"];
+      then
+        rm -rf data/database/pgsql;
+      fi
+    - 
   <<: *test_install_dcd
   variables:
     DB_TYPE: "pgsql"
