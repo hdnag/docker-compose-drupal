@@ -81,10 +81,7 @@ variables:
       then
         docker exec dcd-php composer create-project drupal-composer/drupal-project:8.x-dev $CONTAINER_WEB_ROOT --stability dev --no-interaction --quiet --profile;
       fi
-    - if [ ! -d 'data/www/drupal/config/sync' ];
-      then
-        mkdir -p data/www/drupal/config/sync;
-      fi
+    - mkdir -p data/www/drupal/config/sync
     - chmod -R 777 data/www/drupal/config/sync
     - scripts/drush -y si minimal --db-url=${DB_TYPE}://drupal:drupal@${DB_TYPE}/drupal
     - scripts/drush status
@@ -157,16 +154,13 @@ sample AMP7.1:
     - cp samples/apache_mysql_php_memcache_solr.yml docker-compose.yml
   <<: *test_install_dcd
 
-sample AP9P7.1:
+.sample AP9P7.1:
   before_script:
     - *install_docker_compose
     - make setup
     - cp samples/apache_postgres9_php.yml docker-compose.yml
     # When changing database version, ensure we start fresh.
-    - if [ -d "data/database/pgsql" ];
-      then
-        rm -rf data/database/pgsql;
-      fi
+    - rm -rf ./data/database/pgsql
   <<: *test_install_dcd
   variables:
     DB_TYPE: "pgsql"
