@@ -5,7 +5,6 @@ docker-compose.test*
 !scripts/.env
 !openstack/.env
 # ignore static files
-data/*
 build/dashboard/app/vendor
 build/dashboard/tools/
 tools/*
@@ -15,3 +14,4 @@ tools/*
 tmp*
 myscripts*
 .phpintel
+.idea
