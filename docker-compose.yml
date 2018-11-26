@@ -29,20 +29,6 @@ services:
       - ./config/pgsql/.pg_pass:/home/apache/.pg_pass:ro
     env_file: .env
     container_name: ${PROJECT_NAME:-dcd}-apache
-  nginx:
-    image: nginx:alpine
-    depends_on:
-      - php
-    ports:
-      - "${NGINX_HOST_HTTP_PORT:-81}:80"
-      # - "${NGINX_HOST_HTTPS_PORT:-444}:443"
-    volumes:
-      - ${HOST_WEB_ROOT:-./data/www}:/var/www/localhost
-      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      # Php FPM socket
-      - php-sock:/sock:ro
-    env_file: .env
-    container_name: ${PROJECT_NAME:-dcd}-nginx
   php:
     image: mogtofu33/php:${PHP_VERSION:-7.1}
     volumes:
@@ -76,69 +62,6 @@ services:
       # - varnish
     env_file: .env
     container_name: ${PROJECT_NAME:-dcd}-php
-  mysql:
-    image: mariadb:latest
-    expose:
-      - "3306"
-    volumes:
-      # Any .sql file will be imported in the MYSQL_DATABASE defined on your
-      # .env (default: drupal).
-      - ${HOST_DATABASE_DUMP:-./data/dump}:/docker-entrypoint-initdb.d
-      ## Comment these two lines on Windows system, permissions issue.
-      - ${HOST_DATABASE_MYSQL:-./data/database/mysql}:/var/lib/mysql
-      - ./config/mysql:/etc/mysql
-    env_file: .env
-    container_name: ${PROJECT_NAME:-dcd}-mysql
-  mailhog:
-    image: mailhog/mailhog:latest
-    expose:
-      - "1025"
-    ports:
-      - "8025:8025"
-    container_name: ${PROJECT_NAME:-dcd}-mailhog
-  memcache:
-    image: memcached:alpine
-    expose:
-      - "11211"
-    container_name: ${PROJECT_NAME:-dcd}-memcache
-  tools:
-    image: nginx:alpine
-    depends_on:
-      - php
-    ports:
-      - "${HOST_TOOLS_PORT:-8008}:80"
-    volumes:
-      - ./tools:/tools:ro
-      - ./build/dashboard/default.conf:/etc/nginx/conf.d/default.conf:ro
-      # Php FPM socket
-      - php-sock:/sock:ro
-    env_file: .env
-    container_name: ${PROJECT_NAME:-dcd}-tools
-  dashboard:
-    image: mogtofu33/dashboard:latest
-    ports:
-      - "${HOST_DASHBORAD_PORT:-8181}:5000"
-    volumes:
-      - ./build/dashboard/app:/app
-      # Share configs for reading on the dashboard.
-      - ./config/apache/vhost.conf:/config/vhost.conf:ro
-      - ./config/nginx/default.conf:/config/default.conf:ro
-      - ./tools:/tools:ro
-      - .env:/config/stack.env:ro
-      # Access docker daemon.
-      - /var/run/docker.sock:/var/run/docker.sock
-    env_file: .env
-    container_name: ${PROJECT_NAME:-dcd}-dashboard
-  ## Full advanced dashboard.
-  # portainer:
-  #   image: portainer/portainer:latest
-  #   ports:
-  #     - "9000:9000"
-  #   command: --no-auth -H unix:///var/run/docker.sock
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #   restart: unless-stopped
-  #   container_name: ${PROJECT_NAME:-dcd}-portainer
 
 volumes:
   php-sock:
