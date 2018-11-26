@@ -28,7 +28,7 @@ services:
       ## If PgSQL, ease drush pgsql access.
       - ./config/pgsql/.pg_pass:/home/apache/.pg_pass:ro
     env_file: .env
-    container_name: ${PROJECT_NAME:-dcd}-apache
+    container_name: dcd-apache
   php:
     image: mogtofu33/php:${PHP_VERSION:-7.1}
     volumes:
@@ -51,7 +51,7 @@ services:
       ## If you have composer set locally, share cache to speed up.
       # - ${HOME:-}/.composer/cache:/composer/cache
     env_file: .env
-    container_name: ${PROJECT_NAME:-dcd}-php
+    container_name: dcd-php
 
 volumes:
   php-sock:
