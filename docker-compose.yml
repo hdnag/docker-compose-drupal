@@ -30,9 +30,9 @@ services:
     env_file: .env
     container_name: dcd-apache
   php:
-    image: mogtofu33/php
+    image: mogtofu33/php:7
     volumes:
-      - ./data/www:/var/www/localhost:7.1
+      - ./data/www:/var/www/localhost
       - ./config/php/7.1/php.ini:/etc/php7/php.ini:ro
       - ./config/php/7.1/php-fpm.conf:/etc/php7/php-fpm.conf:ro
       - ./config/php/7.1/conf.d/:/etc/php7/conf.d/:ro
