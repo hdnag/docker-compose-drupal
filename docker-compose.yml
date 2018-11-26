@@ -30,7 +30,7 @@ services:
     env_file: .env
     container_name: dcd-apache
   php:
-    image: mogtofu33/php:${PHP_VERSION:-7.1}
+    image: mogtofu33/php
     volumes:
       - ${HOST_WEB_ROOT:-./data/www}:/var/www/localhost
       - ./config/php/${PHP_VERSION:-7.1}/php.ini:/etc/php7/php.ini:ro
