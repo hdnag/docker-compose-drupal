@@ -12,10 +12,10 @@ services:
     depends_on:
       - php
     ports:
-      - "${APACHE_HOST_HTTP_PORT:-80}:80"
-      - "${APACHE_HOST_HTTPS_PORT:-443}:443"
+      - 80:80
+      - 443:443
       # Web root access, optional but can help with multi sites.
-      - "${APACHE_HOST_ROOT_PORT:-88}:81"
+      - 88:81
     volumes:
       - ./data/www:/var/www/localhost
       # Apache configuration with SSL support.
@@ -50,16 +50,6 @@ services:
       - ./config/pgsql/.pg_pass:/home/apache/.pg_pass:ro
       ## If you have composer set locally, share cache to speed up.
       # - ${HOME:-}/.composer/cache:/composer/cache
-    links:
-      # Choose database, uncomment service concerned below.
-      - mysql
-      - pgsql
-      # Choose optionnal services.
-      - memcache
-      - redis
-      - solr
-      - mailhog
-      # - varnish
     env_file: .env
     container_name: ${PROJECT_NAME:-dcd}-php
 
