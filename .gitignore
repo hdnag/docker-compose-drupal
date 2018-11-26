@@ -1,7 +1,5 @@
 # Docker compose files
-docker-compose.yml
 docker-compose.test*
-.env
 !scripts/.env
 !openstack/.env
 # ignore static files
@@ -15,3 +13,4 @@ tmp*
 myscripts*
 .phpintel
 .idea
+data/www/drupal/composer.lock
