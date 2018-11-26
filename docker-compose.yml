@@ -59,6 +59,10 @@ services:
     # than the docker-compose.yml
     build:
       context: .
+      dockerfile: Dockerfile-php-cli
+      # Arguments pass to the Dockerfile.
+      args:
+        USER_UID: 1000
     volumes:
       # Data of application
       - .:/var/www/html:rw
