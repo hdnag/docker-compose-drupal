@@ -32,7 +32,7 @@ services:
   php:
     image: mogtofu33/php
     volumes:
-      - ${HOST_WEB_ROOT:-./data/www}:/var/www/localhost
+      - ./data/www:/var/www/localhost
       - ./config/php/${PHP_VERSION:-7.1}/php.ini:/etc/php7/php.ini:ro
       - ./config/php/${PHP_VERSION:-7.1}/php-fpm.conf:/etc/php7/php-fpm.conf:ro
       - ./config/php/${PHP_VERSION:-7.1}/conf.d/:/etc/php7/conf.d/:ro
@@ -43,7 +43,7 @@ services:
       # Used by dashboard for accessing tools.
       - ./tools:/tools:ro
       # Share db dump folder.
-      - ${HOST_DATABASE_DUMP:-./data/dump}:/dump
+      - ./data/dump:/dump
       # Php FPM socket
       - php-sock:/sock
       ## If PgSQL, ease drush pgsql access.
