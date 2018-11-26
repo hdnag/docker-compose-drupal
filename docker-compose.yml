@@ -17,7 +17,7 @@ services:
       # Web root access, optional but can help with multi sites.
       - "${APACHE_HOST_ROOT_PORT:-88}:81"
     volumes:
-      - ${HOST_WEB_ROOT:-./data/www}:/var/www/localhost
+      - ./data/www:/var/www/localhost
       # Apache configuration with SSL support.
       - ./config/apache/httpd.conf:/etc/apache2/httpd.conf:ro
       - ./config/apache/vhost.conf:/etc/apache2/vhost.conf:ro
