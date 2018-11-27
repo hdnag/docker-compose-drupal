@@ -21,11 +21,6 @@
   "replace": {
     "drupal/drupal": "*"
   },
-  "autoload": {
-    "classmap": [
-      "scripts/composer/ScriptHandler.php"
-    ]
-  },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
