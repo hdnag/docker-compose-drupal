@@ -31,9 +31,11 @@
   "scripts": {
     "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
     "pre-install-cmd": [
+      "composer drupal-scaffold",
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
     "pre-update-cmd": [
+      "composer drupal-scaffold",
       "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
     ],
     "post-install-cmd": [
