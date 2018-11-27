@@ -13,4 +13,3 @@ tmp*
 myscripts*
 .phpintel
 .idea
-data/www/drupal/composer.lock
