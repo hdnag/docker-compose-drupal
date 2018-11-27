@@ -5,7 +5,7 @@
 # Documentation:
 #   https://github.com/Mogtofu33/docker-compose-drupal/blob/master/README.md
 ################################################################################
-version: '2'
+version: '3'
 services:
   apache:
     image: mogtofu33/apache:latest
