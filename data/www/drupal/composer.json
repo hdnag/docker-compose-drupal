@@ -23,7 +23,7 @@
   },
   "autoload": {
     "classmap": [
-      "scripts/ScriptHandler.php"
+      "scripts/composer/ScriptHandler.php"
     ]
   },
   "minimum-stability": "dev",
