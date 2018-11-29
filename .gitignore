@@ -1,8 +1,16 @@
 # Docker compose files
+docker-compose.yml
 docker-compose.test*
+.env
 !scripts/.env
 !openstack/.env
 # ignore static files
+data/database
+data/dump
+data/www/drupal/composer.lock
+data/www/drupal/vendor
+data/www/drupal/web/*
+!data/www/drupal/web/modules/custom
 build/dashboard/app/vendor
 build/dashboard/tools/
 tools/*
